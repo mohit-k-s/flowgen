@@ -18,6 +18,12 @@ FlowGen turns natural language into interactive architecture diagrams. Type a de
 
 Built with React Flow, AWS Bedrock (Amazon Nova Pro), and dagre auto-layout.
 
+## Demo
+
+https://github.com/user-attachments/assets/demo.mp4
+
+> **Note:** For the video to play inline on GitHub, upload `public/demo.mp4` to an issue/PR and replace the URL above with the GitHub CDN link.
+
 ## Features
 
 **Natural language → diagram**
