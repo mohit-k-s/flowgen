@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* React Flow canvas dark theme overrides */
+.flow-canvas .react-flow__background {
+  background: #12121c;
+}
+
+.flow-canvas .react-flow__controls {
+  background: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.flow-canvas .react-flow__controls-button {
+  background: #1a1a2e;
+  border-color: rgba(255,255,255,0.08);
+  fill: #9ca3af;
+}
+
+.flow-canvas .react-flow__controls-button:hover {
+  background: rgba(99,102,241,0.15);
+  fill: #a5b4fc;
+}
+
+.flow-canvas .react-flow__minimap {
+  background: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+}
+
+/* Animated edge flow pulse */
+.react-flow__edge-path {
+  transition: stroke 0.2s;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 8 4;
+  animation: flow-dash 3s linear infinite;
+}
+
+@keyframes flow-dash {
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0;  }
+}
+
+/* Node entrance animation */
+@keyframes node-enter {
+  from { opacity: 0; transform: translateY(-12px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Node handle dots */
+.react-flow__handle {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.react-flow__node:hover .react-flow__handle {
+  opacity: 1;
+}
