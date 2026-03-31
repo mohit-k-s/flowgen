@@ -110,9 +110,7 @@ export function DiagramPane({ diagram, status, error, onReset }: DiagramPaneProp
 
       {/* Footer */}
       <div className="flex items-center justify-center py-2 border-t border-white/5 bg-[#0a0a12]">
-        <span className="text-[10px] font-semibold text-indigo-400 tracking-wider">ICS</span>
-        <span className="text-[10px] font-medium text-gray-600 mx-1.5">·</span>
-        <span className="text-[9px] font-medium text-gray-500 tracking-widest uppercase">SkunkWorks</span>
+        <span className="text-[10px] font-medium text-gray-500 tracking-widest">FlowGen</span>
       </div>
     </div>
   )

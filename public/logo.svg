@@ -89,7 +89,6 @@
     </circle>
   </g>
   
-  <!-- ICS SkunkWorks branding -->
-  <text x="100" y="178" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#6366F1" letter-spacing="0.5">ICS</text>
-  <text x="100" y="190" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="7" font-weight="600" fill="#94a3b8" letter-spacing="1.2" opacity="0.8">SKUNKWORKS</text>
+  <!-- FlowGen branding -->
+  <text x="100" y="185" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" fill="#6366F1" letter-spacing="0.8">FlowGen</text>
 </svg>
