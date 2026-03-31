@@ -9,6 +9,7 @@ export function useDiagramGeneration() {
   const [diagram, setDiagram] = useState<DiagramSchema | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
+  const [warningsEnabled, setWarningsEnabled] = useState(true)
   const rawRef = useRef('')
 
   const generate = useCallback((prompt: string) => {
@@ -20,6 +21,8 @@ export function useDiagramGeneration() {
       ...messages,
       { role: 'user', content: prompt },
     ]
+
+    const isRefinement = messages.length > 0
 
     streamDiagram(
       prompt,
@@ -38,7 +41,20 @@ export function useDiagramGeneration() {
       () => {
         try {
           const final = JSON.parse(rawRef.current) as DiagramSchema
-          const laid = applyDagreLayout(final)
+
+          const newHistoryEntry = {
+            timestamp: Date.now(),
+            prompt,
+            type: isRefinement ? 'refinement' as const : 'initial' as const
+          }
+
+          const existingHistory = diagram?.promptHistory || []
+          const updatedDiagram = {
+            ...final,
+            promptHistory: [...existingHistory, newHistoryEntry]
+          }
+
+          const laid = applyDagreLayout(updatedDiagram)
           setDiagram(laid)
           setStatus('done')
           setMessages([
@@ -54,8 +70,9 @@ export function useDiagramGeneration() {
         setError(err.message)
         setStatus('error')
       },
+      warningsEnabled,
     )
-  }, [messages])
+  }, [messages, diagram, warningsEnabled])
 
   const loadDiagram = useCallback((d: DiagramSchema, prompt?: string) => {
     const laid = applyDagreLayout(d)
@@ -82,5 +99,9 @@ export function useDiagramGeneration() {
     rawRef.current = ''
   }, [])
 
-  return { generate, reset, loadDiagram, status, diagram, error, messages }
+  const toggleWarnings = useCallback(() => {
+    setWarningsEnabled(prev => !prev)
+  }, [])
+
+  return { generate, reset, loadDiagram, status, diagram, error, messages, warningsEnabled, toggleWarnings }
 }

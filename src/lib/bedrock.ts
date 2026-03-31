@@ -6,12 +6,13 @@ export async function streamDiagram(
   onChunk: (text: string) => void,
   onDone: () => void,
   onError: (err: Error) => void,
+  warningsEnabled: boolean = true,
 ): Promise<void> {
   try {
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: userPrompt, history }),
+      body: JSON.stringify({ prompt: userPrompt, history, warningsEnabled }),
     })
 
     if (!response.ok || !response.body) {

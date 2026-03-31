@@ -3,7 +3,11 @@ import { DiagramPane } from './components/DiagramPane'
 import { useDiagramGeneration } from './hooks/useDiagramGeneration'
 
 function App() {
-  const { generate, reset, loadDiagram, status, diagram, error } = useDiagramGeneration()
+  const { generate, reset, loadDiagram, status, diagram, error, warningsEnabled, toggleWarnings } = useDiagramGeneration()
+
+  const handleApplyFix = (fix: string) => {
+    generate(fix)
+  }
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0f0f1a]">
@@ -24,6 +28,9 @@ function App() {
           status={status}
           error={error}
           onReset={reset}
+          onApplyFix={handleApplyFix}
+          warningsEnabled={warningsEnabled}
+          onToggleWarnings={toggleWarnings}
         />
       </div>
     </div>

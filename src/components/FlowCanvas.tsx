@@ -47,12 +47,19 @@ export function FlowCanvas({ diagram, onNodeSelect }: FlowCanvasProps) {
     return diagram.edges.map((e) => {
       const color = colorMap.get(e.source) ?? '#6366f1'
       const isDashed = e.style === 'dashed'
+      const isAsync = e.async === true
+
+      const displayLabel = isAsync && e.label
+        ? `${e.label} (async)`
+        : isAsync
+          ? '(async)'
+          : e.label
 
       return {
         id: e.id,
         source: e.source,
         target: e.target,
-        label: e.label,
+        label: displayLabel,
         animated: e.animated,
         type: 'smoothstep',
         markerEnd: {
@@ -64,10 +71,14 @@ export function FlowCanvas({ diagram, onNodeSelect }: FlowCanvasProps) {
         style: {
           stroke: color,
           strokeWidth: isDashed ? 1.5 : 2,
-          strokeDasharray: isDashed ? '6,4' : undefined,
-          opacity: 0.85,
+          strokeDasharray: isAsync ? '8,4,2,4' : isDashed ? '6,4' : undefined,
+          opacity: isAsync ? 0.7 : 0.85,
         },
-        labelStyle: { fill: '#cbd5e1', fontSize: 10, fontWeight: 500 },
+        labelStyle: {
+          fill: isAsync ? '#fbbf24' : '#cbd5e1',
+          fontSize: 10,
+          fontWeight: isAsync ? 600 : 500
+        },
         labelBgStyle: { fill: '#12121c', fillOpacity: 0.9 },
         labelBgPadding: [5, 3] as [number, number],
         labelBgBorderRadius: 4,

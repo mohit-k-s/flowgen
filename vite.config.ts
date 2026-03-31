@@ -26,9 +26,10 @@ function bedrockProxyPlugin(): Plugin {
             req.on('error', reject)
           })
 
-          const { prompt, history = [] } = JSON.parse(body) as {
+          const { prompt, history = [], warningsEnabled = true } = JSON.parse(body) as {
             prompt: string
             history: { role: 'user' | 'assistant'; content: string }[]
+            warningsEnabled?: boolean
           }
           const region = process.env.VITE_AWS_REGION || 'us-east-1'
           const modelId = process.env.VITE_BEDROCK_MODEL_ID || 'amazon.nova-pro-v1:0'
@@ -44,13 +45,20 @@ function bedrockProxyPlugin(): Plugin {
             { role: 'user' as const, content: [{ text: prompt }] },
           ]
 
+          // Conditionally modify system prompt to exclude warnings section
+          let systemPrompt = SYSTEM_PROMPT
+          if (!warningsEnabled) {
+            systemPrompt = systemPrompt.replace(/,\s*"warnings":\s*\[[^\]]*\]/s, '')
+            systemPrompt = systemPrompt.replace(/Warnings \(IMPORTANT[^]*?(?=Output ONLY the JSON)/s, '')
+          }
+
           const command = new InvokeModelWithResponseStreamCommand({
             modelId,
             contentType: 'application/json',
             accept: 'application/json',
             body: Buffer.from(
               JSON.stringify({
-                system: [{ text: SYSTEM_PROMPT }],
+                system: [{ text: systemPrompt }],
                 messages: bedrockMessages,
                 inferenceConfig: { max_new_tokens: 4096 },
               }),

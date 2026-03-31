@@ -18,12 +18,29 @@ export interface EdgeDef {
   label?: string
   animated: boolean
   style: EdgeStyle
+  async?: boolean
 }
 
 export interface DiagramSchema {
   title: string
   nodes: NodeDef[]
   edges: EdgeDef[]
+  promptHistory?: PromptHistoryEntry[]
+  warnings?: ArchitectureWarning[]
+}
+
+export interface ArchitectureWarning {
+  severity: 'info' | 'warning' | 'critical'
+  message: string
+  relatedNodes?: string[]
+  relatedEdges?: string[]
+  suggestedFix?: string
+}
+
+export interface PromptHistoryEntry {
+  timestamp: number
+  prompt: string
+  type: 'initial' | 'refinement'
 }
 
 export type GenerationStatus = 'idle' | 'streaming' | 'done' | 'error'
