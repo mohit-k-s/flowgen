@@ -3,7 +3,7 @@ import { ReactFlowProvider } from 'reactflow'
 import { FlowCanvas } from './FlowCanvas'
 import { NodeDetailPanel } from './NodeDetailPanel'
 import type { DiagramSchema, GenerationStatus } from '../lib/types'
-import { exportAsPng, exportAsGif } from '../lib/export'
+import { exportAsPng } from '../lib/export'
 
 interface DiagramPaneProps {
   diagram: DiagramSchema | null
@@ -14,8 +14,6 @@ interface DiagramPaneProps {
 
 export function DiagramPane({ diagram, status, error, onReset }: DiagramPaneProps) {
   const [exporting, setExporting] = useState(false)
-  const [exportingGif, setExportingGif] = useState(false)
-  const [gifProgress, setGifProgress] = useState(0)
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
 
   async function handleExport() {
@@ -25,20 +23,6 @@ export function DiagramPane({ diagram, status, error, onReset }: DiagramPaneProp
       await exportAsPng(diagram.title)
     } finally {
       setExporting(false)
-    }
-  }
-
-  async function handleExportGif() {
-    if (!diagram) return
-    setExportingGif(true)
-    setGifProgress(0)
-    try {
-      await exportAsGif(diagram.title, (progress) => {
-        setGifProgress(Math.round(progress * 100))
-      })
-    } finally {
-      setExportingGif(false)
-      setGifProgress(0)
     }
   }
 
@@ -75,7 +59,7 @@ export function DiagramPane({ diagram, status, error, onReset }: DiagramPaneProp
             <>
               <button
                 onClick={handleExport}
-                disabled={exporting || exportingGif}
+                disabled={exporting}
                 className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md text-gray-300 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -84,18 +68,6 @@ export function DiagramPane({ diagram, status, error, onReset }: DiagramPaneProp
                   <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
                 {exporting ? 'Exporting…' : 'Export PNG'}
-              </button>
-              <button
-                onClick={handleExportGif}
-                disabled={exporting || exportingGif}
-                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md text-gray-300 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <polyline points="21 15 16 10 5 21" />
-                </svg>
-                {exportingGif ? `Exporting… ${gifProgress}%` : 'Export GIF'}
               </button>
             </>
           )}
