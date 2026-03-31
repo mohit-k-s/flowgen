@@ -30,6 +30,20 @@ Describe microservices, CI/CD pipelines, event-driven systems, auth flows — an
 **Iterative refinement**
 After generating a diagram, use the refine input to evolve it: *"add a Redis cache between the API and the database"*, *"make the Kafka connection async"*. The full conversation history is forwarded to the model.
 
+**Async/sync edge detection**
+The LLM automatically detects asynchronous communication patterns (message queues, events, webhooks, callbacks) and marks edges with a distinctive double-dashed style and amber "(async)" label. Synchronous request-response flows remain solid or single-dashed.
+
+**Architecture feedback & warnings**
+AI-powered analysis identifies potential production risks, anti-patterns, and best practice violations:
+- **Critical**: Single points of failure, missing error handling, data loss risks
+- **Warning**: Missing retry logic, tight coupling, async without proper handling
+- **Info**: Suggestions for monitoring, circuit breakers, caching
+
+Each warning includes a **one-click "Apply Fix"** button that automatically generates a refined diagram addressing the issue.
+
+**Prompt history tracking**
+Every prompt used to create or refine a diagram is stored with timestamps. View the full evolution of your architecture with the "History" panel.
+
 **Instant templates**
 Five pre-built architectures load in zero milliseconds — no model call needed. Use them as starting points or reference.
 
@@ -44,8 +58,12 @@ Five pre-built architectures load in zero milliseconds — no model call needed.
 **Node detail panel**
 Click any node to open a slide-in panel showing the component description, tech stack options (context-aware), and its connections.
 
-**Export as PNG**
-One-click export of the full canvas at 2× resolution.
+**Export options**
+- **PNG**: One-click export of the full canvas at 2× resolution
+- **JSON**: Export complete diagram data for use with LLM tools to start implementation (tooltip: "Start building!")
+
+**Configurable warnings**
+Toggle architecture feedback on/off with the "Feedback On/Off" button. Disabling warnings speeds up generation and reduces token usage.
 
 ## Getting started
 
@@ -137,7 +155,7 @@ For iterative refinement, the full message history (`user`/`assistant` turns) is
 | `#D97706` amber | Queues, message brokers, caches |
 | `#059669` green | Databases, storage, sinks |
 
-Edge style: **solid** = synchronous, **dashed** = async/event-driven. Animated edges indicate active data flow.
+Edge style: **solid** = synchronous, **dashed** = async/event-driven, **double-dashed with amber label** = asynchronous communication (auto-detected). Animated edges indicate active data flow.
 
 ## Project structure
 
@@ -145,19 +163,22 @@ Edge style: **solid** = synchronous, **dashed** = async/event-driven. Animated e
 src/
 ├── components/
 │   ├── InputPane.tsx        # Prompt input + refine mode
-│   ├── DiagramPane.tsx      # Canvas container + export
-│   ├── FlowCanvas.tsx       # React Flow graph
+│   ├── DiagramPane.tsx      # Canvas container + export + warnings toggle
+│   ├── FlowCanvas.tsx       # React Flow graph with async edge styling
 │   ├── CustomNode.tsx       # Color-coded nodes with smart icons
 │   ├── NodeDetailPanel.tsx  # Slide-in node inspector
+│   ├── PromptHistory.tsx    # Prompt history timeline panel
+│   ├── WarningsPanel.tsx    # Architecture feedback panel with Apply Fix
 │   └── TemplateGallery.tsx  # Pre-built diagram templates
 ├── hooks/
-│   ├── useDiagramGeneration.ts  # Generation state + message history
+│   ├── useDiagramGeneration.ts  # Generation state + message history + warnings toggle
 │   └── useStaggeredReveal.ts    # Node entrance animation
 └── lib/
-    ├── prompt.ts            # LLM system prompt
+    ├── prompt.ts            # LLM system prompt with warnings analysis
     ├── bedrock.ts           # SSE streaming client
     ├── layout.ts            # dagre auto-layout
-    ├── export.ts            # PNG export
+    ├── export.ts            # PNG + JSON export
     ├── templates.ts         # Pre-built diagram schemas
-    └── techSuggestions.ts   # Node tech stack hints
+    ├── techSuggestions.ts   # Node tech stack hints
+    └── types.ts             # TypeScript interfaces (warnings, prompt history)
 ```
