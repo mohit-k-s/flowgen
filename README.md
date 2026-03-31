@@ -20,7 +20,7 @@ Built with React Flow, AWS Bedrock (Amazon Nova Pro), and dagre auto-layout.
 
 ## Demo
 
-https://github.com/user-attachments/assets/26a1ea90-9ac7-45f4-a46f-324003aee5e7
+https://github.com/user-attachments/assets/0cf87c62-7324-4805-8f85-5bb0f6888f47
 
 ## Features
 
