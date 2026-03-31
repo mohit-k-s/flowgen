@@ -4,7 +4,6 @@ export function useStaggeredReveal<T>(items: T[], delayMs = 120): T[] {
   const [revealed, setRevealed] = useState<T[]>([])
 
   useEffect(() => {
-    setRevealed([])
     if (!items.length) return
 
     const timers: ReturnType<typeof setTimeout>[] = []
@@ -16,7 +15,10 @@ export function useStaggeredReveal<T>(items: T[], delayMs = 120): T[] {
       )
     })
 
-    return () => timers.forEach(clearTimeout)
+    return () => {
+      timers.forEach(clearTimeout)
+      setRevealed([])
+    }
   }, [items, delayMs])
 
   return revealed

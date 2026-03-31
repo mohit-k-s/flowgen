@@ -65,3 +65,10 @@ Warnings (IMPORTANT - analyze the architecture and provide feedback):
 - Reference specific node/edge IDs in relatedNodes and relatedEdges arrays
 
 Output ONLY the JSON. No other text.`
+
+export function getSystemPrompt(warningsEnabled = true): string {
+  if (warningsEnabled) return SYSTEM_PROMPT
+  return SYSTEM_PROMPT
+    .replace(/,\n {2}"warnings": \[[\s\S]*?\n {2}\]/, '')
+    .replace(/\nWarnings \(IMPORTANT[\s\S]*?(?=\nOutput ONLY the JSON)/, '\n')
+}

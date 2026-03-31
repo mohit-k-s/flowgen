@@ -7,7 +7,7 @@ import {
   BedrockRuntimeClient,
   InvokeModelWithResponseStreamCommand,
 } from '@aws-sdk/client-bedrock-runtime'
-import { SYSTEM_PROMPT } from './src/lib/prompt'
+import { getSystemPrompt } from './src/lib/prompt'
 
 function bedrockProxyPlugin(): Plugin {
   return {
@@ -26,8 +26,7 @@ function bedrockProxyPlugin(): Plugin {
             req.on('error', reject)
           })
 
-          const { prompt, history = [], warningsEnabled = true } = JSON.parse(body) as {
-            prompt: string
+          const { history = [], warningsEnabled = true } = JSON.parse(body) as {
             history: { role: 'user' | 'assistant'; content: string }[]
             warningsEnabled?: boolean
           }
@@ -36,21 +35,13 @@ function bedrockProxyPlugin(): Plugin {
 
           const client = new BedrockRuntimeClient({ region })
 
-          // Build Bedrock messages array from history + new user message
-          const bedrockMessages = [
-            ...history.map((m) => ({
-              role: m.role,
-              content: [{ text: m.content }],
-            })),
-            { role: 'user' as const, content: [{ text: prompt }] },
-          ]
+          // Build Bedrock messages array from history (already includes latest user message)
+          const bedrockMessages = history.map((m) => ({
+            role: m.role,
+            content: [{ text: m.content }],
+          }))
 
-          // Conditionally modify system prompt to exclude warnings section
-          let systemPrompt = SYSTEM_PROMPT
-          if (!warningsEnabled) {
-            systemPrompt = systemPrompt.replace(/,\s*"warnings":\s*\[[^\]]*\]/s, '')
-            systemPrompt = systemPrompt.replace(/Warnings \(IMPORTANT[^]*?(?=Output ONLY the JSON)/s, '')
-          }
+          const systemPrompt = getSystemPrompt(warningsEnabled)
 
           const command = new InvokeModelWithResponseStreamCommand({
             modelId,
