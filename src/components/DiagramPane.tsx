@@ -22,6 +22,9 @@ export function DiagramPane({ diagram, status, error, onReset, onApplyFix, warni
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const [showHistory, setShowHistory] = useState(false)
   const [showWarnings, setShowWarnings] = useState(true)
+  const canvasKey = diagram
+    ? `${diagram.title}:${diagram.nodes.map((node) => `${node.id}:${node.x}:${node.y}:${node.label}`).join(',')}:${diagram.edges.map((edge) => `${edge.id}:${edge.source}:${edge.target}:${edge.label ?? ''}`).join(',')}`
+    : 'empty'
 
   async function handleExport() {
     if (!diagram) return
@@ -45,34 +48,40 @@ export function DiagramPane({ diagram, status, error, onReset, onApplyFix, warni
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#12121c]">
+    <div className="flex h-full flex-col bg-[#efe4d4]">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/5">
+      <div className="flex items-center justify-between border-b border-[#d9c8b3] px-4 py-2.5">
         <div className="flex items-center gap-2">
           {diagram?.title ? (
-            <span className="text-sm font-medium text-gray-200">{diagram.title}</span>
+            <span className="text-sm font-medium text-[#3a2f25]">{diagram.title}</span>
           ) : (
-            <span className="text-sm text-gray-500">Diagram Preview</span>
+            <span className="text-sm text-[#8c7966]">Diagram Preview</span>
           )}
           {status === 'streaming' && (
-            <span className="flex items-center gap-1.5 text-xs text-indigo-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+            <span className="flex items-center gap-1.5 text-xs text-[#8d6c40]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#b88846] animate-pulse" />
               Generating…
             </span>
           )}
           {status === 'done' && diagram && (
-            <span className="text-xs text-emerald-400">
+            <span className="text-xs text-[#5b7552]">
               {diagram.nodes.length} nodes · {diagram.edges.length} edges
             </span>
           )}
         </div>
         <div className="flex items-center gap-2">
+          {diagram && (
+            <span className="hidden items-center gap-1.5 rounded-full border border-[#d4c1aa] bg-white/60 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-[#8f7862] md:inline-flex">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#d1ab78]" />
+              Drag Nodes
+            </span>
+          )}
           {status === 'done' && diagram && (
             <>
               <button
                 onClick={handleExport}
                 disabled={exporting}
-                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md text-gray-300 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs text-[#765f4c] transition-colors hover:bg-white/70 hover:text-[#382c22] disabled:opacity-50"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -83,7 +92,7 @@ export function DiagramPane({ diagram, status, error, onReset, onApplyFix, warni
               </button>
               <button
                 onClick={handleExportJson}
-                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+                className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs text-[#765f4c] transition-colors hover:bg-white/70 hover:text-[#382c22]"
                 title="Start building!"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -95,7 +104,7 @@ export function DiagramPane({ diagram, status, error, onReset, onApplyFix, warni
               {diagram.promptHistory && diagram.promptHistory.length > 0 && (
                 <button
                   onClick={() => setShowHistory(!showHistory)}
-                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+                  className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs text-[#765f4c] transition-colors hover:bg-white/70 hover:text-[#382c22]"
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10" />
@@ -108,8 +117,8 @@ export function DiagramPane({ diagram, status, error, onReset, onApplyFix, warni
                 <button
                   onClick={() => setShowWarnings(!showWarnings)}
                   className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md transition-colors ${showWarnings
-                    ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'
-                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                    ? 'bg-[#efd4a3] text-[#8d5c16] hover:bg-[#e8c993]'
+                    : 'text-[#765f4c] hover:bg-white/70 hover:text-[#382c22]'
                     }`}
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -127,8 +136,8 @@ export function DiagramPane({ diagram, status, error, onReset, onApplyFix, warni
               <button
                 onClick={onToggleWarnings}
                 className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md transition-colors ${warningsEnabled
-                    ? 'text-emerald-400 hover:text-emerald-300'
-                    : 'text-gray-500 hover:text-gray-400'
+                    ? 'text-[#4d7a54] hover:text-[#35563c]'
+                    : 'text-[#9c8a76] hover:text-[#7a6652]'
                   }`}
                 title={warningsEnabled ? 'Disable architecture feedback' : 'Enable architecture feedback'}
               >
@@ -141,7 +150,7 @@ export function DiagramPane({ diagram, status, error, onReset, onApplyFix, warni
               </button>
               <button
                 onClick={handleReset}
-                className="text-xs px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                className="rounded-md px-3 py-1.5 text-xs text-[#8d7762] transition-colors hover:bg-white/70 hover:text-[#3b2f25]"
               >
                 Reset
               </button>
@@ -153,15 +162,16 @@ export function DiagramPane({ diagram, status, error, onReset, onApplyFix, warni
       {/* Canvas */}
       <div className="flex-1 relative">
         {error ? (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex h-full items-center justify-center">
             <div className="text-center px-6">
-              <div className="text-red-400 text-sm font-medium mb-1">Generation failed</div>
-              <div className="text-gray-500 text-xs max-w-xs">{error}</div>
+              <div className="mb-1 text-sm font-medium text-[#b44f45]">Generation failed</div>
+              <div className="max-w-xs text-xs text-[#8f7b66]">{error}</div>
             </div>
           </div>
         ) : (
           <ReactFlowProvider>
             <FlowCanvas
+              key={canvasKey}
               diagram={diagram}
               onNodeSelect={setSelectedNodeId}
             />
@@ -192,8 +202,8 @@ export function DiagramPane({ diagram, status, error, onReset, onApplyFix, warni
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-center py-2 border-t border-white/5 bg-[#0a0a12]">
-        <span className="text-[10px] font-medium text-gray-500 tracking-widest">FlowGen</span>
+      <div className="flex items-center justify-center border-t border-[#d9c8b3] bg-[#e8dbc8] py-2">
+        <span className="text-[10px] font-medium tracking-[0.3em] text-[#8c775f]">FlowGen</span>
       </div>
     </div>
   )

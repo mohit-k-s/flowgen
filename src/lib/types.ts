@@ -1,5 +1,18 @@
 export type NodeType = 'input' | 'default' | 'output'
 export type EdgeStyle = 'solid' | 'dashed'
+export type NodeCategory =
+  | 'client'
+  | 'gateway'
+  | 'service'
+  | 'worker'
+  | 'queue'
+  | 'cache'
+  | 'database'
+  | 'external'
+export type NodeLane = 'entry' | 'edge' | 'app' | 'async' | 'data'
+export type NodeImportance = 'primary' | 'secondary'
+export type NodeShape = 'screen' | 'shield' | 'service' | 'queue' | 'cylinder' | 'pill' | 'external'
+export type EdgeKind = 'request' | 'event' | 'data' | 'auth' | 'cache'
 
 export interface NodeDef {
   id: string
@@ -9,6 +22,10 @@ export interface NodeDef {
   y: number
   color: string
   description: string
+  category?: NodeCategory
+  lane?: NodeLane
+  importance?: NodeImportance
+  shape?: NodeShape
 }
 
 export interface EdgeDef {
@@ -19,6 +36,8 @@ export interface EdgeDef {
   animated: boolean
   style: EdgeStyle
   async?: boolean
+  kind?: EdgeKind
+  importance?: NodeImportance
 }
 
 export interface DiagramSchema {

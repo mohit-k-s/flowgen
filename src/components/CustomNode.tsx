@@ -1,20 +1,34 @@
 import { useState } from 'react'
 import { Handle, Position, type NodeProps } from 'reactflow'
-import { motion, AnimatePresence } from 'framer-motion'
-
+import { formatCategoryLabel, formatLaneLabel } from '../lib/presentation'
+import type { NodeCategory, NodeImportance, NodeLane, NodeShape } from '../lib/types'
 
 export interface CustomNodeData {
   label: string
   color: string
   description: string
   animIndex: number
+  category?: NodeCategory
+  lane?: NodeLane
+  importance?: NodeImportance
+  shape?: NodeShape
 }
 
-export function NodeIcon({ label, color }: { label: string; color: string }) {
+export function NodeIcon({
+  label,
+  color,
+  category,
+  shape,
+}: {
+  label: string
+  color: string
+  category?: NodeCategory
+  shape?: NodeShape
+}) {
   const l = (label ?? '').toLowerCase()
 
   // Client / browser / user / frontend
-  if (/client|browser|user|frontend|mobile|app$/.test(l)) {
+  if (shape === 'screen' || category === 'client' || /client|browser|user|frontend|mobile|app$/.test(l)) {
     return (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <rect x="2" y="3" width="20" height="14" rx="2" />
@@ -24,12 +38,11 @@ export function NodeIcon({ label, color }: { label: string; color: string }) {
   }
 
   // Gateway / proxy / load balancer
-  if (/gateway|proxy|load.?balanc|ingress|nginx|reverse/.test(l)) {
+  if (shape === 'shield' || category === 'gateway' || /gateway|proxy|load.?balanc|ingress|nginx|reverse/.test(l)) {
     return (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-        <path d="M2 17l10 5 10-5" />
-        <path d="M2 12l10 5 10-5" />
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="M9 12l2 2 4-4" />
       </svg>
     )
   }
@@ -44,7 +57,7 @@ export function NodeIcon({ label, color }: { label: string; color: string }) {
   }
 
   // Database / storage / postgres / mysql / mongo / redis / s3
-  if (/database|db|postgres|mysql|mongo|redis|dynamo|storage|s3|bucket|blob|sql/.test(l)) {
+  if (shape === 'cylinder' || category === 'database' || /database|db|postgres|mysql|mongo|redis|dynamo|storage|s3|bucket|blob|sql/.test(l)) {
     return (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <ellipse cx="12" cy="5" rx="9" ry="3" />
@@ -55,7 +68,7 @@ export function NodeIcon({ label, color }: { label: string; color: string }) {
   }
 
   // Queue / broker / kafka / rabbitmq / pubsub / event / stream / bus
-  if (/queue|broker|kafka|rabbit|pubsub|event|stream|bus|topic|sns|sqs/.test(l)) {
+  if (shape === 'queue' || category === 'queue' || /queue|broker|kafka|rabbit|pubsub|event|stream|bus|topic|sns|sqs/.test(l)) {
     return (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 6h18M3 12h18M3 18h18" />
@@ -67,7 +80,7 @@ export function NodeIcon({ label, color }: { label: string; color: string }) {
   }
 
   // Cache / cdn / memcache
-  if (/cache|cdn|memcache|varnish/.test(l)) {
+  if (shape === 'pill' || category === 'cache' || /cache|cdn|memcache|varnish/.test(l)) {
     return (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
@@ -107,8 +120,34 @@ export function NodeIcon({ label, color }: { label: string; color: string }) {
   )
 }
 
+function getNodeShell(shape?: NodeShape, importance?: NodeImportance) {
+  const density = importance === 'primary' ? 'min-w-[210px]' : 'min-w-[180px]'
+
+  switch (shape) {
+    case 'screen':
+      return `${density} rounded-[24px] border shadow-[0_18px_40px_rgba(118,91,36,0.10)]`
+    case 'shield':
+      return `${density} rounded-[22px] border-[1.5px] shadow-[0_18px_34px_rgba(145,71,44,0.12)]`
+    case 'queue':
+      return `${density} rounded-[26px] border shadow-[0_18px_34px_rgba(181,116,28,0.12)]`
+    case 'cylinder':
+      return `${density} rounded-[24px] border shadow-[0_20px_38px_rgba(25,104,88,0.14)]`
+    case 'pill':
+      return `${density} rounded-[999px] border shadow-[0_16px_28px_rgba(47,95,44,0.12)]`
+    case 'external':
+      return `${density} rounded-[20px] border border-dashed shadow-[0_16px_30px_rgba(111,95,69,0.10)]`
+    case 'service':
+    default:
+      return `${density} rounded-[22px] border shadow-[0_20px_38px_rgba(106,83,54,0.11)]`
+  }
+}
+
 export function CustomNode({ data }: NodeProps<CustomNodeData>) {
   const [hovered, setHovered] = useState(false)
+  const shellClass = getNodeShell(data.shape, data.importance)
+  const badgeLabel = data.category && data.lane
+    ? `${formatCategoryLabel(data.category)} · ${formatLaneLabel(data.lane)}`
+    : undefined
 
   return (
     <div
@@ -120,55 +159,58 @@ export function CustomNode({ data }: NodeProps<CustomNodeData>) {
       }}
     >
       <div
-        className="rounded-xl px-5 py-3 shadow-lg border-2 min-w-[140px] cursor-grab active:cursor-grabbing"
+        className={`${shellClass} px-4 py-3.5 cursor-grab active:cursor-grabbing`}
         style={{
-          background: `${data.color}15`,
-          borderColor: `${data.color}99`,
-          boxShadow: hovered ? `0 0 16px ${data.color}44` : `0 2px 8px #0008`,
-          transition: 'box-shadow 0.15s, border-color 0.15s, transform 0.15s',
-          transform: hovered ? 'scale(1.04)' : 'scale(1)',
+          background: hovered
+            ? `linear-gradient(180deg, #fffefd 0%, ${data.color}14 100%)`
+            : `linear-gradient(180deg, #fffdfa 0%, ${data.color}11 100%)`,
+          borderColor: hovered ? `${data.color}66` : `${data.color}40`,
+          transition: 'box-shadow 0.18s, border-color 0.18s, transform 0.18s, background 0.18s',
+          transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
         }}
       >
-        {/* Icon */}
-        <div className="flex justify-center mb-2">
-          <NodeIcon label={data.label} color={data.color} />
-        </div>
-
-        {/* Label */}
-        <div
-          className="text-xs font-semibold leading-tight text-center whitespace-nowrap"
-          style={{ color: data.color }}
-        >
-          {data.label}
-        </div>
-      </div>
-
-      {/* Tooltip */}
-      <AnimatePresence>
-        {hovered && data.description && (
-          <motion.div
-            initial={{ opacity: 0, y: 6, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-            className="absolute z-50 bottom-full mb-2 left-1/2 -translate-x-1/2 w-52 rounded-lg px-3 py-2 text-xs text-white shadow-xl pointer-events-none"
-            style={{ background: '#1e1e2e', border: `1px solid ${data.color}44` }}
+        <div className="flex items-start gap-3">
+          <div
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl border"
+            style={{
+              color: data.color,
+              background: `${data.color}10`,
+              borderColor: `${data.color}30`,
+            }}
           >
-            <div className="font-medium mb-0.5" style={{ color: data.color }}>
+            <NodeIcon label={data.label} color={data.color} category={data.category} shape={data.shape} />
+          </div>
+          <div className="min-w-0 flex-1">
+            {badgeLabel && (
+              <div className="mb-1 flex items-center gap-2">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#8a7861]">
+                  {badgeLabel}
+                </span>
+                {data.importance && (
+                  <span
+                    className="rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em]"
+                    style={{
+                      color: data.color,
+                      background: `${data.color}10`,
+                      borderColor: `${data.color}30`,
+                    }}
+                  >
+                    {data.importance}
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="text-[14px] font-semibold leading-tight text-[#231d16]">
               {data.label}
             </div>
-            <div className="text-gray-300 leading-snug">{data.description}</div>
-            <div
-              className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0"
-              style={{
-                borderLeft: '5px solid transparent',
-                borderRight: '5px solid transparent',
-                borderTop: '5px solid #1e1e2e',
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {data.description && (
+              <div className="mt-1 text-[11px] leading-relaxed text-[#7a6856]">
+                {data.description}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       <Handle type="target" position={Position.Top} className="!bg-transparent !border-0 !w-3 !h-3" />
       <Handle type="source" position={Position.Bottom} className="!bg-transparent !border-0 !w-3 !h-3" />

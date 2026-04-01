@@ -13,7 +13,11 @@ The JSON must strictly follow this schema:
       "x": 0,
       "y": 0,
       "color": "<hex color — pick meaningfully: #4F46E5 for services, #059669 for databases, #D97706 for queues, #DC2626 for gateways, #0EA5E9 for clients>",
-      "description": "one sentence describing this component's role"
+      "description": "one sentence describing this component's role",
+      "category": "client" | "gateway" | "service" | "worker" | "queue" | "cache" | "database" | "external",
+      "lane": "entry" | "edge" | "app" | "async" | "data",
+      "importance": "primary" | "secondary",
+      "shape": "screen" | "shield" | "service" | "queue" | "cylinder" | "pill" | "external"
     }
   ],
   "edges": [
@@ -24,7 +28,9 @@ The JSON must strictly follow this schema:
       "label": "optional short edge label",
       "animated": true,
       "style": "solid" | "dashed",
-      "async": true | false
+      "async": true | false,
+      "kind": "request" | "event" | "data" | "auth" | "cache",
+      "importance": "primary" | "secondary"
     }
   ],
   "warnings": [
@@ -44,6 +50,22 @@ Rules:
 - Use dashed style for async/event-driven connections, solid for synchronous
 - IMPORTANT: Set "async": true for asynchronous communication (message queues, events, callbacks, webhooks, fire-and-forget calls). Set "async": false or omit for synchronous request-response patterns
 - Keywords indicating async: "publish", "emit", "trigger", "notify", "queue", "event", "callback", "webhook", "after", "then call"
+- Prefer semantic node metadata when possible:
+  * clients, browsers, mobile apps, external users => category "client", lane "entry", shape "screen"
+  * gateways, ingress, auth edges, load balancers => category "gateway", lane "edge", shape "shield"
+  * services and APIs => category "service", lane "app", shape "service"
+  * workers, processors, schedulers => category "worker", lane "app", shape "service"
+  * queues, brokers, streams, pub/sub => category "queue", lane "async", shape "queue"
+  * caches => category "cache", lane "data", shape "pill"
+  * databases and persistent storage => category "database", lane "data", shape "cylinder"
+  * third-party systems => category "external", lane "entry", shape "external"
+- Mark major request-path systems and core stores as importance "primary"; supporting systems can be "secondary"
+- Prefer semantic edge kinds:
+  * request for synchronous request-response calls
+  * event for async messaging, events, queues, webhooks
+  * data for persistence and data replication
+  * auth for login, token, identity, permission flows
+  * cache for cache reads, writes, invalidations
 - x and y must always be 0 — layout is handled automatically
 - If the user asks to modify an existing diagram, return the full updated diagram JSON
 

@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+:root {
+  color: #2d241c;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 244, 0.94) 0%, rgba(239, 227, 210, 0.96) 100%);
+  font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -9,47 +16,79 @@ html, body, #root {
   width: 100%;
   margin: 0;
   padding: 0;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* React Flow canvas dark theme overrides */
+body {
+  background:
+    radial-gradient(circle at top, rgba(255, 248, 237, 0.88), rgba(235, 224, 208, 0.94)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(198, 170, 131, 0.06) 0,
+      rgba(198, 170, 131, 0.06) 88px,
+      rgba(255, 255, 255, 0) 88px,
+      rgba(255, 255, 255, 0) 176px
+    );
+}
+
 .flow-canvas .react-flow__background {
-  background: #12121c;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 248, 236, 0.95), rgba(241, 231, 214, 0.95)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(185, 161, 128, 0.07) 0,
+      rgba(185, 161, 128, 0.07) 74px,
+      rgba(255, 255, 255, 0) 74px,
+      rgba(255, 255, 255, 0) 148px
+    );
 }
 
 .flow-canvas .react-flow__controls {
-  background: #1a1a2e;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
+  background: rgba(255, 252, 246, 0.9);
+  border: 1px solid rgba(182, 159, 126, 0.32);
+  border-radius: 14px;
   overflow: hidden;
+  box-shadow: 0 16px 30px rgba(126, 95, 54, 0.12);
 }
 
 .flow-canvas .react-flow__controls-button {
-  background: #1a1a2e;
-  border-color: rgba(255,255,255,0.08);
-  fill: #9ca3af;
+  background: rgba(255, 252, 246, 0.9);
+  border-color: rgba(182, 159, 126, 0.2);
+  fill: #8d7760;
 }
 
 .flow-canvas .react-flow__controls-button:hover {
-  background: rgba(99,102,241,0.15);
-  fill: #a5b4fc;
+  background: rgba(231, 213, 184, 0.5);
+  fill: #5a4734;
 }
 
 .flow-canvas .react-flow__minimap {
-  background: #1a1a2e;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 8px;
+  background: rgba(255, 252, 246, 0.9);
+  border: 1px solid rgba(182, 159, 126, 0.32);
+  border-radius: 12px;
+  box-shadow: 0 16px 30px rgba(126, 95, 54, 0.12);
+}
+
+.editorial-flow .react-flow__renderer {
+  background-image:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.2), transparent 38%),
+    radial-gradient(circle at bottom, rgba(202, 171, 124, 0.07), transparent 30%);
 }
 
 /* Animated edge flow pulse */
 .react-flow__edge-path {
-  transition: stroke 0.2s;
+  transition: stroke 0.2s, opacity 0.2s;
 }
 
 .react-flow__edge.animated .react-flow__edge-path {
   stroke-dasharray: 8 4;
-  animation: flow-dash 3s linear infinite;
+  animation: flow-dash 4.2s linear infinite;
+}
+
+.editorial-flow .react-flow__edge-text {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 @keyframes flow-dash {
@@ -59,7 +98,7 @@ html, body, #root {
 
 /* Node entrance animation */
 @keyframes node-enter {
-  from { opacity: 0; transform: translateY(-12px) scale(0.92); }
+  from { opacity: 0; transform: translateY(-10px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
